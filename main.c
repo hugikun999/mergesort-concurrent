@@ -75,7 +75,7 @@ void cut_local_list(void *data)
         /* Create local list container */
         local_list = list_new();
         local_list->head = head;
-//TODO:can assign value outside for loop
+        local_list->size = local_size;
         local_list->size = local_size;
         /* Cut the local list */
         tail = list_get(local_list, local_size - 1);
@@ -153,6 +153,8 @@ int main(int argc, char *argv[])
     /* launch the first task */
     tqueue_push(pool->queue, task_new(cut_local_list, the_list));
 
+    for(int i = 0; i < thread_count; i++)
+        pthread_join(pool->threads[i], NULL);
     /* release thread pool */
     consumed_tasks = tpool_free(pool);
 
