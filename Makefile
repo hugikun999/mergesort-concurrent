@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = -std=gnu11 -Wall -g -pthread
-OBJS = list.o threadpool.o merge_sort.o main.o
+CFLAGS = -std=gnu11 -Wall -g -pthread -g
+CFLAGS_PHONEBOOK = $(CFLAGS) -DWORD
+OBJS = list.o threadpool.o merge_sort.o main.o word_align.o
 
 .PHONY: all clean test
 
@@ -16,11 +17,26 @@ $(GIT_HOOKS):
 	@echo
 
 deps := $(OBJS:%.o=.%.o.d)
-%.o: %.c
+
+%.o:%.c
 	$(CC) $(CFLAGS) -o $@ -MMD -MF .$@.d -c $<
+
+objs_phonebook: list.c threadpool.c merge_sort.c main.c
+	$(CC) $(CFLAGS_PHONEBOOK) -o list.o -MMD -MF .list.o.d -c list.c
+	$(CC) $(CFLAGS_PHONEBOOK) -o threadpool.o -MMD -MF .threadpool.o.d -c threadpool.c
+	$(CC) $(CFLAGS_PHONEBOOK) -o merge_sort.o -MMD -MF .merge_sort.o.d -c merge_sort.c
+	$(CC) $(CFLAGS_PHONEBOOK) -o main.o -MMD -MF .main.o.d -c main.c
+	$(CC) $(CFALGS_PHONEBOOK) -o word_align.o -MMD -MF .word_align.o.d -c word_align.c
 
 sort: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) -rdynamic
+
+sort_phonebook: objs_phonebook
+	$(CC) $(CFLAGS_PHONEBOOK) -o $@ $(OBJS) -rdynamic
+
+test_phonebook:
+	@rm -f word_ailgn.txt; \
+	./sort_phonebook 4 test_data/words.txt
 
 genData:
 	uniq test_data/words.txt | sort -R > test_data/input.txt

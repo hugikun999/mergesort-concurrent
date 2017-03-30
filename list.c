@@ -3,22 +3,30 @@
 
 #include "list.h"
 #include "generic_printf.h"
-
+int count=0;
 /**
  * @brief Create a new node with data _val_ and set the next node to _net_
  * @param val Specifiy the data to assign to the new node
  * @param next Pointer to the next node
  * @return Pointer to the created new node
  */
-static node_t *node_new(val_t val, node_t *next)
+static node_t *node_new(char *lastname, node_t *next)
 {
     /* allocate node */
     node_t *node = malloc(sizeof(node_t));
-    node->data = val;
+    node->lastname = lastname;
     node->next = next;
     return node;
 }
 
+static node_t *node_newc(char *lastname, node_t *next)
+{
+    node_t *node = malloc(sizeof(node_t));
+    node->data = count++;
+    node->lastname = lastname;
+    node->next = next;
+    return node;
+}
 /**
  * @brief Initialize the linked list.
  *
@@ -30,7 +38,7 @@ static node_t *node_new(val_t val, node_t *next)
 llist_t *list_new()
 {
     /* allocate list */
-    llist_t *list = malloc(sizeof(llist_t));
+    llist_t *list = (llist_t *) malloc(sizeof(llist_t));
     list->head = NULL;
     list->size = 0;
     return list;
@@ -42,9 +50,18 @@ llist_t *list_new()
  * @param val Specify the value
  * @return The final size of the linked list
  */
-int list_add(llist_t * const list, const val_t val)
+int list_add(llist_t * const list,char *lastname)
 {
-    node_t *e = node_new(val, NULL);
+    node_t *e = node_new(lastname, NULL);
+    e->next = list->head;
+    list->head = e;
+    list->size++;
+    return list->size;
+}
+
+int list_addc(llist_t * const list, char *lastname)
+{
+    node_t *e= node_newc(lastname, NULL);
     e->next = list->head;
     list->head = e;
     list->size++;
@@ -62,6 +79,7 @@ int list_add(llist_t * const list, const val_t val)
 node_t *list_get(llist_t * const list, const uint32_t index)
 {
     uint32_t idx = index;
+
     if (!(idx < list->size))
         return NULL;
     node_t *head = list->head;
@@ -78,7 +96,7 @@ void list_print(const llist_t * const list)
 {
     const node_t *cur = list->head;
     while (cur) {
-        xprintln(cur->data);
+        xprint(cur->lastname);
         cur = cur->next;
     }
 }

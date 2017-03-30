@@ -2,13 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <assert.h>
 
 #include "threadpool.h"
 #include "list.h"
 #include "merge_sort.h"
+#include "word_align.h"
 
 #define USAGE "usage: ./sort [thread_count] [input_file]\n"
-
+#define OUT_FILE "word_align.txt"
+#define MAX_NAME_SIZE 16
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 struct {
@@ -20,6 +26,9 @@ static llist_t *the_list = NULL;
 
 static int thread_count = 0, data_count = 0, max_cut = 0;
 static tpool_t *pool = NULL;
+
+static char *map = NULL;
+static off_t file_size;
 
 void merge_thread_lists(void *data)
 {
@@ -66,6 +75,7 @@ void cut_local_list(void *data)
         /* Create local list container */
         local_list = list_new();
         local_list->head = head;
+//TODO:can assign value outside for loop
         local_list->size = local_size;
         /* Cut the local list */
         tail = list_get(local_list, local_size - 1);
@@ -98,30 +108,33 @@ static void *task_run(void *data __attribute__ ((__unused__)))
     pthread_exit(NULL);
 }
 
-static uint32_t build_list_from_file(llist_t *_list, const char *filename)
+static uint32_t build_list_from_file(llist_t *_list)
 {
-    FILE *fp = fopen(filename, "r");
-    char buffer[16];
+    int fd = open(OUT_FILE, O_RDONLY);
+    file_size = fsize(OUT_FILE);
+    map = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    assert(map && "mmap error");
 
-    while (fgets(buffer, 16, fp) != NULL) {
-        list_add(_list, atol(buffer));
+
+    for (int count = 0; count < (file_size / 16); count++) {
+        list_addc(_list, map + 16 * count);
     }
 
-    fclose(fp);
     return _list->size;
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     if (argc < 3) {
         printf(USAGE);
         return -1;
     }
     thread_count = atoi(argv[1]);
+    word_align(argv[2], OUT_FILE, MAX_NAME_SIZE);
 
     /* Read data */
     the_list = list_new();
-    data_count = build_list_from_file(the_list, argv[2]);
+    data_count = build_list_from_file(the_list);
 
     max_cut = MIN(thread_count, data_count);
 
@@ -155,5 +168,6 @@ int main(int argc, char const *argv[])
     /* Output sorted result */
     list_print(the_list);
 
+    munmap(map, file_size);
     return 0;
 }
