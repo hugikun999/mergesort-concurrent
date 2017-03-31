@@ -159,8 +159,6 @@ int main(int argc, char *argv[])
     /* launch the first task */
     tqueue_push(pool->queue, task_new(cut_local_list, the_list));
 
-    for(int i = 0; i < thread_count; i++)
-        pthread_join(pool->threads[i], NULL);
     /* release thread pool */
     consumed_tasks = tpool_free(pool);
 
@@ -174,8 +172,12 @@ int main(int argc, char *argv[])
     printf("#Throughput: %d (per sec)\n", (uint32_t)(consumed_tasks * 1000 / duration));
 
     /* Output sorted result */
-    list_print(the_list);
+    //list_print(the_list);
 
+    list_free_nodes(the_list);
+    free(the_list);
+    free(pool);
     munmap(map, file_size);
+
     return 0;
 }

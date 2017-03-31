@@ -94,9 +94,11 @@ int tqueue_push(tqueue_t * const the_queue, task_t *task)
 {
     pthread_mutex_lock(&(the_queue->mutex));
     task->next = NULL;
+
     if (the_queue->tail)
         the_queue->tail->next = task;
     the_queue->tail = task;
+
     if (the_queue->size++ == 0)
         the_queue->head = task;
     pthread_mutex_unlock(&(the_queue->mutex));
@@ -118,6 +120,8 @@ uint32_t tqueue_free(tqueue_t *the_queue)
         cur = the_queue->head;
     }
     pthread_mutex_destroy(&(the_queue->mutex));
+    pthread_cond_destroy(&(the_queue->cond));
+
     return num_of_consumed;
 }
 
@@ -139,6 +143,7 @@ int tpool_init(tpool_t *the_pool, uint32_t tcount, void *(*func)(void *))
     for (uint32_t i = 0; i < tcount; ++i)
         pthread_create(&(the_pool->threads[i]), &attr, func, NULL);
     pthread_attr_destroy(&attr);
+
     return 0;
 }
 
@@ -152,7 +157,10 @@ uint32_t tpool_free(tpool_t *the_pool)
     int num_of_consumed;
     for (uint32_t i = 0; i < the_pool->count; ++i)
         pthread_join(the_pool->threads[i], NULL);
+
     free(the_pool->threads);
     num_of_consumed = tqueue_free(the_pool->queue);
+    free(the_pool->queue);
+
     return num_of_consumed;
 }
