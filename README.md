@@ -15,11 +15,18 @@ The strategy to implement merge sort concurrently:
 * Tasks that creates sub-tasks can be allowed to terminated
 
 ## Build
+For input integer 
 ```bash
 make
 ```
 
+For input word file
+```bash
+make sort_phonebook
+```
+
 ## Run
+For input integer
 ```bash
 ./sort [thread count] [data count]
 ```
@@ -28,6 +35,15 @@ Then input integer data line-by-line
 make check
 ```
 Simple test suite.
+
+For input word file
+```bash
+./sort_phonebook [thread count] [word file]
+```
+simple test
+```bash
+make test_phonebook
+```
 
 # Licensing
 `mergesort-concurrent` is freely redistributable under the two-clause BSD
