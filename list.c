@@ -119,10 +119,10 @@ void list_free_nodes(llist_t *list)
 {
     node_t *cur = list->head;
     while (cur) {
-        cur = cur->next;
+        list->head = list->head->next;
         free(cur);
+        cur = list->head;
     }
-    list->head = NULL;
 }
 
 val_t chartolint(char *lastname)
