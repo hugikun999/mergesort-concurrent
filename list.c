@@ -3,31 +3,33 @@
 #include <math.h>
 #include "list.h"
 #include "generic_printf.h"
-int count = 0;
+
 /**
  * @brief Create a new node with data _val_ and set the next node to _net_
  * @param val Specifiy the data to assign to the new node
  * @param next Pointer to the next node
  * @return Pointer to the created new node
  */
-static node_t *node_new(char *lastname, node_t *next)
+static node_t *node_new(val_t val, node_t *next)
 {
     /* allocate node */
     node_t *node = malloc(sizeof(node_t));
-    node->lastname = lastname;
+    node->data = val;
     node->next = next;
     return node;
 }
 
+#ifdef WORD
 static node_t *node_newc(char *lastname, node_t *next)
 {
     node_t *node = malloc(sizeof(node_t));
     node->data = chartolint(lastname);
-    //node->data = count++;
     node->lastname = lastname;
     node->next = next;
     return node;
 }
+#endif
+
 /**
  * @brief Initialize the linked list.
  *
@@ -51,15 +53,16 @@ llist_t *list_new()
  * @param val Specify the value
  * @return The final size of the linked list
  */
-int list_add(llist_t * const list,char *lastname)
+int list_add(llist_t * const list, const val_t val)
 {
-    node_t *e = node_new(lastname, NULL);
+    node_t *e = node_new(val, NULL);
     e->next = list->head;
     list->head = e;
     list->size++;
     return list->size;
 }
 
+#ifdef WORD
 int list_addc(llist_t * const list, char *lastname)
 {
     node_t *e= node_newc(lastname, NULL);
@@ -68,6 +71,7 @@ int list_addc(llist_t * const list, char *lastname)
     list->size++;
     return list->size;
 }
+#endif
 
 /**
  * @brief Get the node specified by index
@@ -97,9 +101,14 @@ void list_print(const llist_t * const list)
 {
     const node_t *cur = list->head;
     while (cur) {
+#ifdef WORD
         xprint(cur->lastname);
+#else
+        xprintln(cur->data);
+#endif
         cur = cur->next;
     }
+
 }
 
 /**
@@ -122,10 +131,8 @@ val_t chartolint(char *lastname)
 
     for(int i = 0; i < MAX_NAME_SIZE; i++) {
         long int ctoli = (long int)lastname[i] - 96;
-
         if(lastname[i] != '\0' && lastname[i] != '\n')
             data += ctoli * pow(27, MAX_NAME_SIZE - i - 4);
-
         else
             break;
     }

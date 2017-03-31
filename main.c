@@ -75,7 +75,6 @@ void cut_local_list(void *data)
         local_list = list_new();
         local_list->head = head;
         local_list->size = local_size;
-        local_list->size = local_size;
         /* Cut the local list */
         tail = list_get(local_list, local_size - 1);
         head = tail->next;
@@ -107,13 +106,13 @@ static void *task_run(void *data __attribute__ ((__unused__)))
     pthread_exit(NULL);
 }
 
-static uint32_t build_list_from_file(llist_t *_list)
+#ifdef WORD
+static uint32_t build_list_from_file(llist_t *_list, char *file)
 {
     int fd = open(OUT_FILE, O_RDONLY);
-    file_size = fsize(OUT_FILE);
+    file_size = fsize(file);
     map = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
     assert(map && "mmap error");
-
 
     for (int count = 0; count < (file_size / 16); count++) {
         list_addc(_list, map + 16 * count);
@@ -121,6 +120,7 @@ static uint32_t build_list_from_file(llist_t *_list)
 
     return _list->size;
 }
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -129,12 +129,19 @@ int main(int argc, char *argv[])
         return -1;
     }
     thread_count = atoi(argv[1]);
-    word_align(argv[2], OUT_FILE, MAX_NAME_SIZE);
-
-    /* Read data */
     the_list = list_new();
-    data_count = build_list_from_file(the_list);
 
+#ifdef WORD
+    word_align(argv[2], OUT_FILE, MAX_NAME_SIZE);
+    data_count = build_list_from_file(the_list, OUT_FILE);
+#else
+    FILE *fp = fopen(argv[2], "r");
+    char buf[16];
+    while(fgets(buf, sizeof(buf), fp) != NULL)
+        list_add(the_list, atol(buf));
+    data_count = the_list->size;
+    fclose(fp);
+#endif
     max_cut = MIN(thread_count, data_count);
 
     /* initialize tasks inside thread pool */

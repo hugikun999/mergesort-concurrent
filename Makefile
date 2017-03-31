@@ -19,20 +19,20 @@ $(GIT_HOOKS):
 deps := $(OBJS:%.o=.%.o.d)
 
 %.o:%.c
-	$(CC) $(CFLAGS) -o $@ -MMD -MF .$@.d -c $<
+	$(CC) $(CFLAGS) -o $@ -lm -MMD -MF .$@.d -c $<
 
 objs_phonebook: list.c threadpool.c merge_sort.c main.c
-	$(CC) $(CFLAGS_PHONEBOOK) -o list.o -MMD -MF .list.o.d -c list.c
+	$(CC) $(CFLAGS_PHONEBOOK) -o list.o -lm -MMD -MF .list.o.d -c list.c
 	$(CC) $(CFLAGS_PHONEBOOK) -o threadpool.o -MMD -MF .threadpool.o.d -c threadpool.c
 	$(CC) $(CFLAGS_PHONEBOOK) -o merge_sort.o -MMD -MF .merge_sort.o.d -c merge_sort.c
 	$(CC) $(CFLAGS_PHONEBOOK) -o main.o -MMD -MF .main.o.d -c main.c
 	$(CC) $(CFALGS_PHONEBOOK) -o word_align.o -MMD -MF .word_align.o.d -c word_align.c
 
 sort: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) -rdynamic
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -rdynamic -lm
 
 sort_phonebook: objs_phonebook
-	$(CC) $(CFLAGS_PHONEBOOK) -o $@ $(OBJS) -rdynamic
+	$(CC) $(CFLAGS_PHONEBOOK) -o $@ $(OBJS) -rdynamic -lm
 
 test_phonebook:
 	@rm -f word_ailgn.txt; \

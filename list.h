@@ -28,7 +28,7 @@ typedef struct {
 } llist_t;
 
 llist_t *list_new();
-int list_add(llist_t * const list, char *lastname);
+int list_add(llist_t * const list, const val_t val);
 int list_addc(llist_t * const list, char *lastname);
 void list_print(const llist_t * const the_list);
 node_t *list_get(llist_t * const the_list, const uint32_t index);
