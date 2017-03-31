@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define MAX_NAME_SIZE 16
 typedef intptr_t val_t;
 
 /**
@@ -32,5 +33,6 @@ int list_addc(llist_t * const list, char *lastname);
 void list_print(const llist_t * const the_list);
 node_t *list_get(llist_t * const the_list, const uint32_t index);
 void list_free_nodes(llist_t *the_list);
+val_t chartolint(char *lastname);
 
 #endif

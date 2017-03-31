@@ -14,7 +14,6 @@
 
 #define USAGE "usage: ./sort [thread_count] [input_file]\n"
 #define OUT_FILE "word_align.txt"
-#define MAX_NAME_SIZE 16
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 struct {

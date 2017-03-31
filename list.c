@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <math.h>
 #include "list.h"
 #include "generic_printf.h"
-int count=0;
+int count = 0;
 /**
  * @brief Create a new node with data _val_ and set the next node to _net_
  * @param val Specifiy the data to assign to the new node
@@ -22,7 +22,8 @@ static node_t *node_new(char *lastname, node_t *next)
 static node_t *node_newc(char *lastname, node_t *next)
 {
     node_t *node = malloc(sizeof(node_t));
-    node->data = count++;
+    node->data = chartolint(lastname);
+    //node->data = count++;
     node->lastname = lastname;
     node->next = next;
     return node;
@@ -113,4 +114,21 @@ void list_free_nodes(llist_t *list)
         free(cur);
     }
     list->head = NULL;
+}
+
+val_t chartolint(char *lastname)
+{
+    val_t data = 0;
+
+    for(int i = 0; i < MAX_NAME_SIZE; i++) {
+        long int ctoli = (long int)lastname[i] - 96;
+
+        if(lastname[i] != '\0' && lastname[i] != '\n')
+            data += ctoli * pow(27, MAX_NAME_SIZE - i - 4);
+
+        else
+            break;
+    }
+
+    return data;
 }
